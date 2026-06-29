@@ -375,15 +375,12 @@ function updateDocPreview() {
     // TCC Title text
     docTitulo.innerHTML = inputTitulo.value.trim() !== '' ? inputTitulo.value : '&nbsp;';
     
-    // Co-advisor handling and label updates (orientador(a) vs orientador(es))
-    const orientadorLabel = document.getElementById('doc-orientador-label');
+    // Co-advisor handling
     if (inputCoorientador.value.trim() !== '') {
         docCoorientador.innerText = inputCoorientador.value;
         rowDocCoorientador.style.display = 'flex';
-        if (orientadorLabel) orientadorLabel.innerText = "Orientador(es):";
     } else {
         rowDocCoorientador.style.display = 'none';
-        if (orientadorLabel) orientadorLabel.innerText = "Orientador(a):";
     }
     
     docCampusHeader.innerText = inputCampus.value;
@@ -470,9 +467,15 @@ function autoAdjustZoom() {
 
 // Generate PDF for download via html2pdf.js
 function downloadPDF() {
+    if (typeof html2pdf === 'undefined') {
+        alert("A biblioteca de PDF direta não está disponível offline. Vamos abrir a janela de impressão para salvar em PDF com alta qualidade!");
+        window.print();
+        return;
+    }
+
     const element = document.getElementById('document-to-print');
     
-    // Temporarily reset zoom to 1.0 for perfect 1:1 crisp vector/canvas PDF capture
+    // Temporarily reset zoom to 1.0 for crisp PDF capture
     const savedZoom = element.style.zoom;
     const savedTransform = element.style.transform;
     element.style.zoom = '1.0';
@@ -487,8 +490,9 @@ function downloadPDF() {
         filename:     `ficha_tcc_${studentCleanName}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { 
-            scale: 2.5, // High resolution
-            useCORS: true, 
+            scale: 2, // High resolution
+            useCORS: true,
+            allowTaint: true,
             letterRendering: true,
             scrollY: 0,
             scrollX: 0
@@ -496,14 +500,22 @@ function downloadPDF() {
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
-    html2pdf().set(opt).from(element).save().then(() => {
-        // Restore zoom after capture completes
+    try {
+        html2pdf().set(opt).from(element).save().then(() => {
+            element.style.zoom = savedZoom;
+            element.style.transform = savedTransform;
+        }).catch((err) => {
+            console.error("Erro no html2pdf:", err);
+            element.style.zoom = savedZoom;
+            element.style.transform = savedTransform;
+            window.print();
+        });
+    } catch (err) {
+        console.error("Erro ao chamar html2pdf:", err);
         element.style.zoom = savedZoom;
         element.style.transform = savedTransform;
-    }).catch(() => {
-        element.style.zoom = savedZoom;
-        element.style.transform = savedTransform;
-    });
+        window.print();
+    }
 }
 
 /* ==========================================================================

@@ -693,12 +693,13 @@ body {
 .detail-row {
     display: flex;
     align-items: flex-start;
+    gap: 6px;
 }
 
 .detail-label {
     font-weight: bold;
-    width: 95px;
     flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .detail-value {
