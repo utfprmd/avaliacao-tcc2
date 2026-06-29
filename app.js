@@ -127,11 +127,13 @@ const docSignaturesContainer = document.getElementById('doc-signatures-container
 const docCampusHeader = document.getElementById('doc-campus-header');
 const docCursoHeader = document.getElementById('doc-curso-header');
 
-// Action Buttons
+// Action Buttons & Controls
 const btnPrint = document.getElementById('btn-print');
 const btnDownload = document.getElementById('btn-download');
 const btnResetGrades = document.getElementById('btn-reset-grades');
-const btnFillDemo = document.getElementById('btn-fill-demo');
+const btnZoomIn = document.getElementById('btn-zoom-in');
+const btnZoomOut = document.getElementById('btn-zoom-out');
+const zoomLevelText = document.getElementById('zoom-level-text');
 
 /* ==========================================================================
    Formatters
@@ -437,58 +439,44 @@ function resetGrades() {
     updateDocPreview();
 }
 
-// Populate criteria with the exact values from the user's PDF screenshot
-function fillDemoPDF() {
-    inputAluno.value = "Vitor Henrique Wagner Malacarne";
-    inputOrientador.value = "Ricardo Sobjak";
-    inputTitulo.value = "SELEÇÃO DE PARÂMETROS DE INTERPOLAÇÃO NA PLATAFORMA AGDATABOX EM UNIDADE DE PROCESSAMENTO GRÁFICO";
-    inputCoorientador.value = "";
-    inputData.value = "2026-06-25";
-    inputCidade.value = "Medianeira";
-    inputAvaliador.value = "Nelson Miguel Betzek";
-    selectFuncao.value = "Membro Avaliador";
-    
-    evaluatorName = "Nelson Miguel Betzek";
-    evaluatorRole = "Membro Avaliador";
-    
-    const demoGrades = {
-        1: 8.8, // 0.22 / 0.25
-        2: 8.8, // 0.22 / 0.25
-        3: 8.8, // 0.22 / 0.25
-        4: 9.0, // 0.45 / 0.50
-        5: 9.0, // 0.45 / 0.50
-        6: 9.6, // 0.48 / 0.50
-        7: 9.0, // 1.80 / 2.00
-        8: 9.0, // 1.80 / 2.00
-        9: 9.6, // 0.48 / 0.50
-        10: 10.0, // 0.50 / 0.50
-        11: 9.6, // 0.48 / 0.50
-        12: 10.0, // 1.00 / 1.00
-        13: 9.6  // 1.20 / 1.25
-    };
-    
-    // Apply demo values
-    Object.keys(demoGrades).forEach(id => {
-        grades[id] = demoGrades[id];
-    });
-    
-    // Update inputs and preview
-    renderCriteriaEditor();
-    
-    criteria.forEach(c => {
-        updateSingleCriterionDisplay(c.id);
-    });
-    updateTotalScore();
-    updateDocPreview();
-    
-    // Scroll editor to first criteria tab
-    const tabs = document.querySelectorAll('.tab-btn');
-    if (tabs.length > 0) tabs[0].click();
+
+
+// Zoom Management State & Functions
+let currentZoom = 1.0;
+
+function applyZoom(zoomVal) {
+    currentZoom = Math.max(0.3, Math.min(2.0, zoomVal));
+    const docElement = document.getElementById('document-to-print');
+    if (docElement) {
+        docElement.style.zoom = currentZoom;
+        docElement.style.transform = `scale(${currentZoom})`;
+    }
+    if (zoomLevelText) {
+        zoomLevelText.innerText = `${Math.round(currentZoom * 100)}%`;
+    }
+}
+
+function autoAdjustZoom() {
+    const scrollContainer = document.querySelector('.document-scroll-container');
+    if (scrollContainer && window.innerWidth <= 1024) {
+        const availableWidth = scrollContainer.clientWidth - 30;
+        let idealScale = availableWidth / 794; // 794px is standard A4 display width
+        idealScale = Math.max(0.35, Math.min(1.0, idealScale));
+        applyZoom(idealScale);
+    } else {
+        applyZoom(1.0);
+    }
 }
 
 // Generate PDF for download via html2pdf.js
 function downloadPDF() {
     const element = document.getElementById('document-to-print');
+    
+    // Temporarily reset zoom to 1.0 for perfect 1:1 crisp vector/canvas PDF capture
+    const savedZoom = element.style.zoom;
+    const savedTransform = element.style.transform;
+    element.style.zoom = '1.0';
+    element.style.transform = 'none';
     
     const rawName = inputAluno.value.trim() !== '' ? inputAluno.value.trim() : 'documento';
     const studentCleanName = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
@@ -508,7 +496,14 @@ function downloadPDF() {
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(element).save().then(() => {
+        // Restore zoom after capture completes
+        element.style.zoom = savedZoom;
+        element.style.transform = savedTransform;
+    }).catch(() => {
+        element.style.zoom = savedZoom;
+        element.style.transform = savedTransform;
+    });
 }
 
 /* ==========================================================================
@@ -536,9 +531,17 @@ tabButtons.forEach(btn => {
 
 // Action buttons
 btnResetGrades.addEventListener('click', resetGrades);
-btnFillDemo.addEventListener('click', fillDemoPDF);
 btnPrint.addEventListener('click', () => window.print());
-btnDownload.addEventListener('click', downloadPDF);
+btnDownload.addEventListener('click', () => downloadPDF());
+
+if (btnZoomIn) {
+    btnZoomIn.addEventListener('click', () => applyZoom(currentZoom + 0.1));
+}
+if (btnZoomOut) {
+    btnZoomOut.addEventListener('click', () => applyZoom(currentZoom - 0.1));
+}
+
+window.addEventListener('resize', autoAdjustZoom);
 
 /* ==========================================================================
    Initialization
@@ -551,6 +554,7 @@ function init() {
     renderDocTable();
     updateTotalScore();
     updateDocPreview();
+    autoAdjustZoom();
 }
 
 // Kickstart

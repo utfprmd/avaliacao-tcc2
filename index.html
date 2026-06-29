@@ -140,8 +140,12 @@
             <div class="preview-header">
                 <h2><i class="fa-regular fa-file-pdf"></i> Pré-visualização do Documento (A4)</h2>
                 <div class="view-controls">
+                    <div class="zoom-controls">
+                        <button type="button" id="btn-zoom-out" class="btn-sm btn-secondary" title="Reduzir Zoom"><i class="fa-solid fa-minus"></i></button>
+                        <span id="zoom-level-text" class="zoom-text">100%</span>
+                        <button type="button" id="btn-zoom-in" class="btn-sm btn-secondary" title="Aumentar Zoom"><i class="fa-solid fa-plus"></i></button>
+                    </div>
                     <button id="btn-reset-grades" class="btn-sm btn-danger"><i class="fa-solid fa-rotate-left"></i> Zerar Notas</button>
-                    <button id="btn-fill-demo" class="btn-sm btn-info"><i class="fa-solid fa-wand-magic-sparkles"></i> Exemplo do PDF</button>
                 </div>
             </div>
             
@@ -162,13 +166,7 @@
                             <p class="gov-inst" id="doc-curso-header">Coordenação do Curso de Bacharelado em Ciência da Computação</p>
                         </div>
                         <div class="header-logo-right">
-                            <!-- SVG UTFPR Crisp Vector -->
-                            <svg viewBox="0 0 100 45" width="85" height="38" alt="Logo UTFPR">
-                                <text x="2" y="32" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="28" fill="#1a1a1a">UT</text>
-                                <text x="40" y="32" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="28" fill="#fbcb09">FPR</text>
-                                <rect x="2" y="38" width="92" height="4" fill="#fbcb09" />
-                                <text x="2" y="44" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="5" font-weight="bold" fill="#555" letter-spacing="0.1">UNIVERSIDADE TECNOLÓGICA FEDERAL DO PARANÁ</text>
-                            </svg>
+                            <img src="utfpr-logo.png" alt="Logo UTFPR">
                         </div>
                     </header>
                     
