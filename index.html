@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Avaliação de TCC - UTFPR</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Aplicação web para geração de Ficha de Avaliação de Trabalho de Conclusão de Curso (TCC) da UTFPR. Cálculo automático de pesos e geração de PDF.">
+    <meta name="author" content="Antigravity AI">
+    
+    <!-- Google Fonts: Plus Jakarta Sans (UI) & PT Serif (Document) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for UI Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- html2pdf.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5IfS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Editor -->
+        <aside class="sidebar" id="sidebar-editor">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <i class="fa-solid fa-graduation-cap header-icon"></i>
+                    <div>
+                        <h1>Avaliação TCC</h1>
+                        <p>UTFPR - Campus Medianeira</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <!-- Seção 1: Informações Gerais -->
+                <section class="form-section">
+                    <h2 class="section-title"><i class="fa-solid fa-file-invoice"></i> Dados Gerais</h2>
+                    
+                    <div class="form-grid">
+                        <div class="input-group full-width">
+                            <label for="input-aluno">Nome do Aluno(a)</label>
+                            <input type="text" id="input-aluno" placeholder="Digite o nome completo do aluno" value="">
+                        </div>
+                        
+                        <div class="input-group full-width">
+                            <label for="input-titulo">Título do Trabalho (TCC)</label>
+                            <textarea id="input-titulo" rows="2" placeholder="Digite o título do trabalho"></textarea>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="input-orientador">Orientador(a)</label>
+                            <input type="text" id="input-orientador" placeholder="Nome do orientador" value="">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="input-coorientador">Coorientador(a) <small>(opcional)</small></label>
+                            <input type="text" id="input-coorientador" placeholder="Nome do coorientador (se houver)">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="input-curso">Curso</label>
+                            <input type="text" id="input-curso" value="Bacharelado em Ciência da Computação">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="input-campus">Campus</label>
+                            <input type="text" id="input-campus" value="Campus Medianeira">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="input-cidade">Cidade</label>
+                            <input type="text" id="input-cidade" value="Medianeira">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="input-data">Data de Avaliação</label>
+                            <input type="date" id="input-data" value="">
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Seção 2: Avaliador -->
+                <section class="form-section">
+                    <h2 class="section-title"><i class="fa-solid fa-user-tie"></i> Avaliador</h2>
+                    <p class="section-subtitle">Identificação de quem realiza a avaliação e assina o documento.</p>
+                    
+                    <div class="form-grid">
+                        <div class="input-group full-width">
+                            <label for="input-avaliador">Nome do Avaliador</label>
+                            <input type="text" id="input-avaliador" placeholder="Digite o nome completo do avaliador" value="">
+                        </div>
+                        
+                        <div class="input-group full-width">
+                            <label for="select-funcao">Função na Avaliação</label>
+                            <select id="select-funcao" class="form-select">
+                                <option value="Membro Avaliador">Membro Avaliador</option>
+                                <option value="Presidente/Orientador">Presidente/Orientador</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Seção 3: Avaliação de Critérios -->
+                <section class="form-section">
+                    <h2 class="section-title"><i class="fa-solid fa-star-half-stroke"></i> Critérios de Avaliação</h2>
+                    <p class="section-subtitle">Insira notas de 0 a 10. O sistema calculará o valor proporcional baseado no peso máximo.</p>
+                    
+                    <div class="category-tabs">
+                        <button class="tab-btn active" data-target="cat-estrutura">Estrutura</button>
+                        <button class="tab-btn" data-target="cat-conteudo">Conteúdo</button>
+                        <button class="tab-btn" data-target="cat-apresentacao">Apresentação</button>
+                        <button class="tab-btn" data-target="cat-arguicao">Arguição</button>
+                    </div>
+                    
+                    <div class="criteria-container">
+                        <!-- Dynamic criteria inputs based on categories -->
+                        <div id="cat-estrutura" class="criteria-category-group active"></div>
+                        <div id="cat-conteudo" class="criteria-category-group"></div>
+                        <div id="cat-apresentacao" class="criteria-category-group"></div>
+                        <div id="cat-arguicao" class="criteria-category-group"></div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Sidebar Footer Actions -->
+            <div class="sidebar-footer">
+                <button id="btn-print" class="btn btn-primary"><i class="fa-solid fa-print"></i> Imprimir / Salvar PDF</button>
+                <button id="btn-download" class="btn btn-success"><i class="fa-solid fa-file-pdf"></i> Download PDF Direto</button>
+            </div>
+        </aside>
+        
+        <!-- Document Preview Panel -->
+        <main class="preview-panel">
+            <div class="preview-header">
+                <h2><i class="fa-regular fa-file-pdf"></i> Pré-visualização do Documento (A4)</h2>
+                <div class="view-controls">
+                    <button id="btn-reset-grades" class="btn-sm btn-danger"><i class="fa-solid fa-rotate-left"></i> Zerar Notas</button>
+                    <button id="btn-fill-demo" class="btn-sm btn-info"><i class="fa-solid fa-wand-magic-sparkles"></i> Exemplo do PDF</button>
+                </div>
+            </div>
+            
+            <div class="document-scroll-container">
+                <!-- Visual A4 Page Wrapper -->
+                <div class="a4-page" id="document-to-print">
+                    <!-- Ficha Header -->
+                    <header class="doc-header">
+                        <div class="header-logo-left">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Coat_of_arms_of_Brazil.svg" alt="Brasão da República" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="fallback-brasao" style="display:none; width: 60px; height: 60px; border: 1px solid #333; border-radius: 50%; text-align: center; line-height: 60px; font-size: 8px; font-weight: bold;">BRASÃO</div>
+                        </div>
+                        <div class="header-text">
+                            <p class="gov-inst text-bold">Ministério da Educação</p>
+                            <p class="gov-inst text-bold">Universidade Tecnológica Federal do Paraná</p>
+                            <p class="gov-inst" id="doc-campus-header">Campus Medianeira</p>
+                            <p class="gov-inst">Departamento Acadêmico de Computação</p>
+                            <p class="gov-inst" id="doc-curso-header">Coordenação do Curso de Bacharelado em Ciência da Computação</p>
+                        </div>
+                        <div class="header-logo-right">
+                            <!-- SVG UTFPR Crisp Vector -->
+                            <svg viewBox="0 0 100 45" width="85" height="38" alt="Logo UTFPR">
+                                <text x="2" y="32" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="28" fill="#1a1a1a">UT</text>
+                                <text x="40" y="32" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="28" fill="#fbcb09">FPR</text>
+                                <rect x="2" y="38" width="92" height="4" fill="#fbcb09" />
+                                <text x="2" y="44" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="5" font-weight="bold" fill="#555" letter-spacing="0.1">UNIVERSIDADE TECNOLÓGICA FEDERAL DO PARANÁ</text>
+                            </svg>
+                        </div>
+                    </header>
+                    
+                    <h2 class="doc-title text-bold">FICHA DE AVALIAÇÃO DO TRABALHO DE CONCLUSÃO DE CURSO 2 (TCC 2)</h2>
+                    
+                    <!-- Candidate Details -->
+                    <div class="doc-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Aluno(a):</span>
+                            <span class="detail-value" id="doc-aluno">&nbsp;</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label" id="doc-orientador-label">Orientador(a):</span>
+                            <span class="detail-value" id="doc-orientador">&nbsp;</span>
+                        </div>
+                        <div class="detail-row" id="row-doc-coorientador" style="display: none;">
+                            <span class="detail-label">Coorientador(a):</span>
+                            <span class="detail-value" id="doc-coorientador">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Título:</span>
+                            <span class="detail-value text-uppercase" id="doc-titulo">&nbsp;</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Criteria Table -->
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th class="col-item text-center">Item</th>
+                                <th class="col-max text-center">Nota Máxima</th>
+                                <th class="col-grade text-center">NOTA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="doc-table-body">
+                            <!-- Rows will be injected here by app.js -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td class="text-right text-bold">TOTAL</td>
+                                <td class="text-center text-bold" id="doc-total-max">10,00</td>
+                                <td class="text-center text-bold" id="doc-total-actual">0,00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    
+                    <!-- Document Footer (Location and Date) -->
+                    <div class="doc-date-location" id="doc-date-location">
+                        Medianeira, ____ de _________________ de 20__.
+                    </div>
+                    
+                    <!-- Signature Section -->
+                    <div class="doc-signatures" id="doc-signatures-container">
+                        <!-- Dynamic signature of evaluator -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
