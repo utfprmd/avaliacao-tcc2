@@ -293,6 +293,13 @@ function updateSingleCriterionDisplay(id) {
     }
 }
 
+const categoryTitles = {
+    estrutura: "ESTRUTURA",
+    conteudo: "CONTEÚDO",
+    apresentacao: "APRESENTAÇÃO",
+    arguicao: "ARGUIÇÃO"
+};
+
 // Render the official sheet's criteria table
 function renderDocTable() {
     docTableBody.innerHTML = '';
@@ -304,8 +311,9 @@ function renderDocTable() {
         if (item.category !== currentCategory) {
             currentCategory = item.category;
             const dividerRow = document.createElement('tr');
+            const titleText = categoryTitles[currentCategory] || currentCategory.toUpperCase();
             dividerRow.innerHTML = `
-                <td colspan="3" class="category-row-title">${currentCategory.toUpperCase()}</td>
+                <td colspan="3" class="category-row-title">${titleText}</td>
             `;
             docTableBody.appendChild(dividerRow);
         }
